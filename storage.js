@@ -1231,23 +1231,25 @@ function initUnstableUnits(onDone){
 		"SELECT unit, level, latest_included_mc_index, main_chain_index, is_on_main_chain, is_free, is_stable, witnessed_level \n\
 		FROM units WHERE is_stable=0 ORDER BY +level",
 		function(rows){
-		//	assocUnstableUnits = {};
-			rows.forEach(function(row){
-				row.parent_units = [];
-				assocUnstableUnits[row.unit] = row;
-			});
-			console.log('initUnstableUnits 1 done');
-			db.query(
-				"SELECT parent_unit, child_unit FROM parenthoods WHERE child_unit IN("+Object.keys(assocUnstableUnits).map(db.escape)+")", 
-				function(prows){
-					prows.forEach(function(prow){
-						assocUnstableUnits[prow.child_unit].parent_units.push(prow.parent_unit);
-					});
-					console.log('initUnstableUnits done');
-					if (onDone)
-						onDone();
-				}
-			);
+			if (rows.length > 0) {
+			//	assocUnstableUnits = {};
+				rows.forEach(function(row){
+					row.parent_units = [];
+					assocUnstableUnits[row.unit] = row;
+				});
+				console.log('initUnstableUnits 1 done');
+				db.query(
+					"SELECT parent_unit, child_unit FROM parenthoods WHERE child_unit IN("+Object.keys(assocUnstableUnits).map(db.escape)+")", 
+					function(prows){
+						prows.forEach(function(prow){
+							assocUnstableUnits[prow.child_unit].parent_units.push(prow.parent_unit);
+						});
+						console.log('initUnstableUnits done');
+						if (onDone)
+							onDone();
+					}
+				);
+			}
 		}
 	);
 }
